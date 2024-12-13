@@ -25,7 +25,14 @@
     <h1><a href="#">College Football</a></h1>
     <nav>
         <ul>
-            <li><a href="{{ url_for('ap') }}">Rankings</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Rankings</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('ap') }}">AP Top 25</a>
+                    <a href="{{ url_for('home') }}">CFP Top 25</a>
+                    <a href="{{ url_for('home') }}">ESPN FPI Rankings</a>
+                </div>
+            </li>
             <li><a href="{{ url_for('home') }}">Standings</a></li>
             <li><a href="#">About</a></li>
             <li class="dropdown">
