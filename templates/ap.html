@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashContainer = document.getElementById('flash-container');
+            const messages = document.getElementsByClassName('flash-message');
+
+            if (messages.length > 0) {
+                flashContainer.style.display = 'block';
+
+                setTimeout(function () {
+                    flashContainer.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</head>
+<body>
+<header>
+    <h1><a href="#">College Football</a></h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('home') }}">Rankings</a></li>
+            <li><a href="{{ url_for('home') }}">Standings</a></li>
+            <li><a href="#">About</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Teams</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('home') }}">Simulation</a>
+                    <a href="{{ url_for('home') }}">Custom Schedules</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Games</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('home') }}">Search</a>
+                    <a href="{{ url_for('home') }}">Projections</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Custom Conferences</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('home') }}">Load Preset</a>
+                    <a href="{{ url_for('home') }}">Create Preset</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div id="flash-container" class="flash-popup" style="display: none;">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="flash-message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<main>
+    <div class="team-container">
+        {% for pic_link in pic_links %}
+            <div class="team-box" style="background-color: {{ pic_link['color'] }};">
+                <img src="{{ url_for('static', filename=pic_link['abbr']) }}" alt="Team Logo" width="100" height="100">
+                <div class="team-info" style="background-color: {{ pic_link['color'] }};">
+                    <span class="team-name">{{ pic_link['name'] }}</span>
+                    <span class="team-record">{{ pic_link['record'] }}</span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</main>
+<footer>
+    <p><a href="#">Copyright &copy; ScootScoot</a></p>
+</footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dropdown = document.querySelector('.dropdown');
+
+        dropdown.addEventListener('mouseenter', function () {
+            const dropdownContent = this.querySelector('.dropdown-content');
+            dropdownContent.style.display = 'block';
+        });
+
+        dropdown.addEventListener('mouseleave', function () {
+            const dropdownContent = this.querySelector('.dropdown-content');
+            dropdownContent.style.display = 'none';
+        });
+    });
+</script>
+</body>
+</html>
