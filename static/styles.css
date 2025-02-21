@@ -187,3 +187,13 @@ a, .dropbtn {
     display: block;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
 }
+
+.team-rank {
+    font-family: "College Football Sans", serif;
+    font-size: 64px;
+    font-weight: bold;
+    display: block;
+    color: #ffffff;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    margin-right: 10px;
+}
