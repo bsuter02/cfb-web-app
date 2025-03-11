@@ -163,4 +163,5 @@ cython_debug/
 
 # ESPN SP+ paywalled content
 
-database\sp_plus.sql
+database/sp_plus.sql
+
