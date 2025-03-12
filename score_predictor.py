@@ -58,14 +58,39 @@ def predict_score_sp_plus(away, home):
     raw_margin = float(home_team.get("SPPlus")) - float(away_team.get("SPPlus"))
 
     # Estimates the score accounting HFA.
-    away_score = total_score/2 - raw_margin/2 - float(home_hfa.get("HFA"))/2
-    home_score = total_score/2 + raw_margin/2 + float(home_hfa.get("HFA"))/2
+    away_score = score_adjustments(total_score/2 - raw_margin/2 - float(home_hfa.get("HFA"))/2)
+    home_score = score_adjustments(total_score/2 + raw_margin/2 + float(home_hfa.get("HFA"))/2)
+
+    # Accounts for ties at end of regulation (doesn't do OT, determines the non-rounded advantage if any, defaults to hfa if exact tie)
+    home_score, away_score = tie_breaker(home_score,away_score)
     
     return away_team.get("TeamName") + " @ " + home_team.get("TeamName") + " Prediction:\n   " +  away_team.get("TeamName") + ": " + str(round(away_score)) + "; " + home_team.get("TeamName") + ": " + str(round(home_score))
 
+# Some results have unrealistically low scores
+def score_adjustments(score):
+    if score < 0:
+        score = 0
+    elif score < 3:
+        score = 3
+    elif score < 6:
+        score = 6
+    return score
+
+# Adds a point if the rounded score is tied, favors home team if non rounded results are tied too.
+def tie_breaker(score1, score2):
+    r1 = round(score1)
+    r2 = round(score2)
+
+    if r1 == r2:
+        if score1 >= score2:
+            score1 = score1 + 1
+        else:
+            score2 = score2 + 1
+    return score1, score2
+
 # Predict game outcome Away vs Home
-away_name = "Texas"
-home_name = "Ohio State"
+away_name = "Ohio State"
+home_name = "Alabama"
 
 predicted_scores_sp = predict_score_sp_plus(away_name, home_name)
 print(predicted_scores_sp)
