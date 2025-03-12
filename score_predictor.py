@@ -47,18 +47,25 @@ def predict_score_sp_plus(away, home):
     # Grabs Home Field Advantage for the team hosting, as determined in an online analysis.
     home_hfa = database_query.get_cfb_hfa_by_team(home)
     
+    # Estimates how much of the total score each team is responsible for, not used at the score prediction as the margin provided by sp+ accomplishes this.
     home_factor = ((float(home_team.get("OffPoint"))) + (float(away_team.get("DefPoint"))))/2
     away_factor = ((float(away_team.get("OffPoint"))) + (float(home_team.get("DefPoint"))))/2
 
+    # Estimates total score.
     total_score = home_factor + away_factor
 
+    # Estimates margin of victory without accounting for home field advantage, impact of travel, or rest time prior to the game.
     raw_margin = float(home_team.get("SPPlus")) - float(away_team.get("SPPlus"))
 
+    # Estimates the score accounting HFA.
     away_score = total_score/2 - raw_margin/2 - float(home_hfa.get("HFA"))/2
     home_score = total_score/2 + raw_margin/2 + float(home_hfa.get("HFA"))/2
     
     return away_team.get("TeamName") + " @ " + home_team.get("TeamName") + " Prediction:\n   " +  away_team.get("TeamName") + ": " + str(round(away_score)) + "; " + home_team.get("TeamName") + ": " + str(round(home_score))
 
 # Predict game outcome Away vs Home
-predicted_scores = predict_score_sp_plus("Iowa", "Iowa State")
-print(predicted_scores)
+away_name = "Texas"
+home_name = "Ohio State"
+
+predicted_scores_sp = predict_score_sp_plus(away_name, home_name)
+print(predicted_scores_sp)
