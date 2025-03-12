@@ -60,3 +60,24 @@ def get_cfb_hfa_by_team(team):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+def get_cfb_sp_plus_by_team(team):
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        query = "SELECT * FROM CfbSPPlusRating WHERE TeamName = %s;"
+        cursor.execute(query, (team,))
+
+        results = cursor.fetchone()
+
+        return results  # Returns a dict with each field in the fpi table
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
