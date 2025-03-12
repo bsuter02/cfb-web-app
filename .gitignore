@@ -165,3 +165,7 @@ cython_debug/
 
 database/sp_plus.sql
 
+test_api/confirm_install.py
+test_api/test_ap_top_25.py
+test_api/test_cfp.py
+test_api/test_fpi.py
