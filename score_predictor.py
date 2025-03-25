@@ -89,8 +89,8 @@ def tie_breaker(score1, score2):
     return score1, score2
 
 # Predict game outcome Away vs Home
-away_name = "Ohio State"
-home_name = "Alabama"
+#away_name = "Ohio State"
+#home_name = "Alabama"
 
-predicted_scores_sp = predict_score_sp_plus(away_name, home_name)
-print(predicted_scores_sp)
+#predicted_scores_sp = predict_score_sp_plus(away_name, home_name)
+#print(predicted_scores_sp)
