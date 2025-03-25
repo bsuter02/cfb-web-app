@@ -139,4 +139,6 @@ INSERT INTO HFA (TeamName, HFA, latitude, longitude) VALUES
  ('Western Michigan', 2.1700, 42.2860064, -85.6007573),
  ('West Virginia', 2.2700, 39.6502744, -79.9551873),
  ('Wisconsin', 2.1700, 43.06994, -89.4126943),
- ('Wyoming', 2.2200, 41.31161, -105.5681384);
+ ('Wyoming', 2.2200, 41.31161, -105.5681384),
+ ('Delaware', 2.2100, 39.6617428, -75.7488224),
+ ('Missouri State', 2.1900, 37.1976229, -93.2798119);
