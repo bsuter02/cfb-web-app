@@ -1,4 +1,5 @@
 import requests
+import math
 from database import database_query
 from geopy.geocoders import Nominatim
 
@@ -64,3 +65,35 @@ def get_coords_from_loc_name(location):
     geolocator = Nominatim(user_agent="http")
     location = geolocator.geocode(location)
     return({"latitude": location.latitude, "longitude": location.longitude})
+
+# Calculates Distance between teams in miles, for travel effects
+def calculate_distance_in_miles(away_team, home_team, neutral, lat, lng):
+    home_hfa = database_query.get_cfb_hfa_by_team(home_team)
+    away_hfa = database_query.get_cfb_hfa_by_team(away_team)
+
+    home_lat = float(home_hfa.get("latitude"))
+    home_long = float(home_hfa.get("longitude"))
+    away_lat = float(away_hfa.get("latitude"))
+    away_long = float(away_hfa.get("longitude"))
+
+    if neutral:
+        home_lat = lat
+        home_long = lng
+
+    #print(home_lat)
+
+    R = 3958.8  # Radius of the Earth in miles
+
+    lat1_rad = math.radians(home_lat)
+    lon1_rad = math.radians(home_long)
+    lat2_rad = math.radians(away_lat)
+    lon2_rad = math.radians(away_long)
+
+    dlon = lon2_rad - lon1_rad
+    dlat = lat2_rad - lat1_rad
+
+    a = math.sin(dlat / 2)**2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlon / 2)**2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+    distance = R * c
+    return distance
