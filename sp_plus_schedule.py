@@ -1,5 +1,7 @@
 import requests
 import math
+
+from datetime import datetime
 from database import database_query
 from geopy.geocoders import Nominatim
 
@@ -97,3 +99,133 @@ def calculate_distance_in_miles(away_team, home_team, neutral, lat, lng):
 
     distance = R * c
     return distance
+
+# Get the score adjustment from travel and rest effects for a whole schedule 
+def get_score_adjustment(team):
+    schedule = get_schedule(team)
+    distance = 0
+    last_game = ''
+    for i in range(len(schedule)):
+        event = schedule[i]
+        is_neutral_site = bool(event.get("Neutral"))
+        # Determines who the opponent is
+        opp = event.get("Home")
+        if(opp == team):
+            opp = event.get("Away")
+        # Excludes distance traveled by FCS teams and home games from distance calculation
+        if (event.get('Home') == team or event.get('Home') == "FCS") and not is_neutral_site:
+            if(event.get('Away') == "FCS"):
+                print(event.get("Away") + ": 7; " + event.get("Home") + ": 49")
+            else:
+                opp_stuff = get_opp_distance_in_schedule(opp, team)
+                print(predict_schedule_sp_plus(event.get("Away"),event.get("Home"),score_adjustment(distance, opp_stuff[0],get_rest(event, last_game),opp_stuff[1],True)))
+        # Calculates Neutral site distance traveled
+        elif (event.get('Home') == team and is_neutral_site):
+            added_dist = calculate_distance_in_miles(event.get("Home"),event.get("Home"),is_neutral_site,event.get("Lat"),event.get("Lng"))
+            distance += added_dist
+            opp_stuff = get_opp_distance_in_schedule(opp, team)
+            print(predict_schedule_sp_plus(event.get("Away"),event.get("Home"),score_adjustment(distance, opp_stuff[0],get_rest(event, last_game),opp_stuff[1],True)))
+            distance += added_dist
+        # Calculates standard away distance traveled
+        else:
+            added_dist = calculate_distance_in_miles(event.get("Away"),event.get("Home"),is_neutral_site,event.get("Lat"),event.get("Lng"))
+            distance += added_dist
+            opp_stuff = get_opp_distance_in_schedule(opp, team)
+            print(predict_schedule_sp_plus(event.get("Away"),event.get("Home"),score_adjustment(distance, opp_stuff[0],get_rest(event, last_game),opp_stuff[1],False)))
+            distance += added_dist
+        last_game = event.get("Date")
+
+# Calculates the distance an opponent has traveled up to a certain point
+def get_opp_distance_in_schedule(team, stop):
+    schedule = get_schedule(team)
+    distance = 0
+    last_travel = 0
+    last_game = ''
+    for i in range(len(schedule)):
+        event = schedule[i]
+        is_neutral_site = bool(event.get("Neutral"))
+        if (event.get('Home') == team or event.get('Home') == "FCS") and not is_neutral_site:
+            last_travel=0
+        elif (event.get('Home') == team and is_neutral_site):
+            added_dist = calculate_distance_in_miles(event.get("Home"),event.get("Home"),is_neutral_site,event.get("Lat"),event.get("Lng"))
+            last_travel = added_dist
+            distance += added_dist*2
+        else:
+            added_dist = calculate_distance_in_miles(event.get("Away"),event.get("Home"),is_neutral_site,event.get("Lat"),event.get("Lng"))
+            last_travel = added_dist
+            distance += added_dist*2
+        if event.get('Home') == stop or event.get('Away') == stop:
+            event.get("Date")
+            return [distance-last_travel,get_rest(event,last_game)]
+        last_game = event.get("Date")
+
+# Converts date from the espn event format and calculates rest time
+def get_rest_time(date1, date2):
+    date1 = datetime.strptime(date1, "%Y-%m-%dT%H:%MZ")
+    date2 = datetime.strptime(date2, "%Y-%m-%dT%H:%MZ")
+    return abs((date1 - date2).days)
+
+# Helper function to access rest_time
+def get_rest(event, last_event):
+    if last_event == '':
+        return 0
+    else:
+        return get_rest_time(event.get("Date"),last_event)
+
+# Calculates the weight of rest and travel effects
+def score_adjustment(dist, opp_dist, rest, opp_rest, is_home):
+    if is_home:
+        return (opp_dist-dist)/1000 + (rest-opp_rest)/5.5
+    else:
+        return -((opp_dist-dist)/1000 + (rest-opp_rest)/5.5)
+
+# Predicts the score of a game using SP+, weighted for travel and rest
+def predict_schedule_sp_plus(away, home, adjustment):
+    
+    # Pull FPI, Offensive Efficiency, and Defensive Efficiency for each team as determined by ESPN analytics.
+    away_team = database_query.get_cfb_sp_plus_by_team(away)
+    home_team = database_query.get_cfb_sp_plus_by_team(home)
+
+    # Grabs Home Field Advantage for the team hosting, as determined in an online analysis.
+    home_hfa = database_query.get_cfb_hfa_by_team(home)
+    
+    # Estimates how much of the total score each team is responsible for, not used at the score prediction as the margin provided by sp+ accomplishes this.
+    home_factor = ((float(home_team.get("OffPoint"))) + (float(away_team.get("DefPoint"))))/2
+    away_factor = ((float(away_team.get("OffPoint"))) + (float(home_team.get("DefPoint"))))/2
+
+    # Estimates total score.
+    total_score = home_factor + away_factor
+
+    # Estimates margin of victory without accounting for home field advantage, impact of travel, or rest time prior to the game.
+    raw_margin = float(home_team.get("SPPlus")) - float(away_team.get("SPPlus"))
+
+    # Estimates the score accounting HFA.
+    away_score = boundary_adjustments(total_score/2 - raw_margin/2 - float(home_hfa.get("HFA"))/2 - adjustment/2)
+    home_score = boundary_adjustments(total_score/2 + raw_margin/2 + float(home_hfa.get("HFA"))/2 + adjustment/2)
+
+    # Accounts for ties at end of regulation (doesn't do OT, determines the non-rounded advantage if any, defaults to hfa if exact tie)
+    home_score, away_score = tie_breaker(home_score,away_score)
+    
+    return away_team.get("TeamName") + ": " + str(round(away_score)) + "; " + home_team.get("TeamName") + ": " + str(round(home_score))
+
+# Some results have unrealistically low scores
+def boundary_adjustments(score):
+    if score < 0:
+        score = 0
+    elif score < 3:
+        score = 3
+    elif score < 6:
+        score = 6
+    return score
+
+# Adds a point if the rounded score is tied, favors home team if non rounded results are tied too.
+def tie_breaker(score1, score2):
+    r1 = round(score1)
+    r2 = round(score2)
+
+    if r1 == r2:
+        if score1 >= score2:
+            score1 = score1 + 1
+        else:
+            score2 = score2 + 1
+    return score1, score2
