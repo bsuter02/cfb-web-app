@@ -101,7 +101,7 @@ def calculate_distance_in_miles(away_team, home_team, neutral, lat, lng):
     return distance
 
 # Get the score adjustment from travel and rest effects for a whole schedule 
-def get_score_adjustment(team):
+def schedule_predictor_sp_plus(team):
     schedule = get_schedule(team)
     distance = 0
     last_game = ''
@@ -229,3 +229,8 @@ def tie_breaker(score1, score2):
         else:
             score2 = score2 + 1
     return score1, score2
+
+# Returns the score prediction for the next fooball year (as of 4/19/25, this is the 2025 schedule)
+schedule_predictor_sp_plus("Alabama")
+
+#TODO: Add in FCS Data to this model (from the 2024 season, the average FCS team would have an SP+ rating of -31.81, 11.92 offense, 43.73 defense)
