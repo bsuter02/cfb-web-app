@@ -204,7 +204,7 @@ def predict_schedule_sp_plus(away, home, adjustment):
     home_score = boundary_adjustments(total_score/2 + raw_margin/2 + float(home_hfa.get("HFA"))/2 + adjustment/2)
 
     # Accounts for ties at end of regulation (doesn't do OT, determines the non-rounded advantage if any, defaults to hfa if exact tie)
-    home_score, away_score = tie_breaker(home_score,away_score)
+    home_score, away_score = tie_breaker(home_score,away_score,float(home_team.get("SPPlus")),float(away_team.get("SPPlus")),float(home_hfa.get("HFA")))
     
     return away_team.get("TeamName") + ": " + str(round(away_score)) + "; " + home_team.get("TeamName") + ": " + str(round(home_score))
 
@@ -219,18 +219,26 @@ def boundary_adjustments(score):
     return score
 
 # Adds a point if the rounded score is tied, favors home team if non rounded results are tied too.
-def tie_breaker(score1, score2):
-    r1 = round(score1)
-    r2 = round(score2)
-
-    if r1 == r2:
-        if score1 >= score2:
+def tie_breaker(score1, score2, home_sp, away_sp, hfa):
+    score = max(score1,score2)
+    if abs(score1-score2) > 0.5 and (round(score1) == round(score2)): # Assumes margin great enough for a 1 point win in regulation
+        if score1 > score2:
             score1 = score1 + 1
+            score2 = score2
         else:
+            score1 = score1
             score2 = score2 + 1
-    return score1, score2
+
+    elif abs(score1-score2) <= 0.5: # Assume margin small enough for overtime. Assume FG to win, may adjust based on offense v defense of winning team if it's a TD or not.
+        if (away_sp-home_sp)<hfa:
+            score1 = score + 3
+            score2 = score
+        else:
+            score1 = score
+            score2 = score + 3
+    return round(score1), round(score2)
 
 # Returns the score prediction for the next fooball year (as of 4/19/25, this is the 2025 schedule)
-schedule_predictor_sp_plus("Alabama")
+schedule_predictor_sp_plus("Cincinnati")
 
 #TODO: Add in FCS Data to this model (from the 2024 season, the average FCS team would have an SP+ rating of -31.81, 11.92 offense, 43.73 defense)
