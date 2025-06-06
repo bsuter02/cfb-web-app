@@ -123,3 +123,41 @@ def get_id_by_teamname(team):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+def insert_game_info(game_info):
+    game = {
+        "ID":int(game_info.get('ID')),
+        "AwayName":game_info.get('Away'),
+        "HomeName":game_info.get('Home'),
+        "NeutralSite":bool(game_info.get('Neutral')),
+        "WeekNumber":int(game_info.get('Week')),
+        "HomeDist":game_info.get('home_dist'),
+        "AwayDist":game_info.get('away_dist'),
+        "HomeRest":game_info.get('home_rest'),
+        "AwayRest":game_info.get('away_rest'),
+        "HomeScore":-1,
+        "AwayScore":-1
+    }
+    insert_data = ("INSERT INTO GameInfo "
+            "(ID, AwayName, HomeName, NeutralSite, WeekNumber, HomeDist, AwayDist, HomeRest, AwayRest, HomeScore, AwayScore) "
+            "VALUES (%(ID)s, %(AwayName)s, %(HomeName)s, %(NeutralSite)s, %(WeekNumber)s, %(HomeDist)s, %(AwayDist)s, %(HomeRest)s, %(AwayRest)s, %(HomeScore)s, %(AwayScore)s)"
+            "ON DUPLICATE KEY UPDATE "
+            "HomeScore = VALUES(HomeScore), "
+            "AwayScore = VALUES(AwayScore);")
+
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        cursor.execute(insert_data, game)
+
+        connection.commit()
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
