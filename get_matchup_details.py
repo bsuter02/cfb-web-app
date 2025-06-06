@@ -210,5 +210,6 @@ def add_all_games():
             database_query.insert_game_info(j)
         print("Completed: " + i)
 
-add_all_games()
+for i in database_query.get_team_schedule_info("Alabama"):
+    print(i)
 

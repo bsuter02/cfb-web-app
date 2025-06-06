@@ -238,7 +238,54 @@ def tie_breaker(score1, score2, home_sp, away_sp, hfa):
             score2 = score + 3
     return round(score1), round(score2)
 
-# Returns the score prediction for the next fooball year (as of 4/19/25, this is the 2025 schedule)
-schedule_predictor_sp_plus("Cincinnati")
+# Calculates a game's score using data from locally stored db
+def sp_score(game):
+    # Pull FPI, Offensive Efficiency, and Defensive Efficiency for each team as determined by ESPN analytics.
+    away_team = str(game.get("AwayName"))
+    home_team = str(game.get("HomeName"))
 
-#TODO: Add in FCS Data to this model (from the 2024 season, the average FCS team would have an SP+ rating of -31.81, 11.92 offense, 43.73 defense)
+    if away_team == "FCS":
+        away_team = {'TeamName': 'FCS', 'SPPlus': float(-31.81), 'OffPoint': float(11.92), 'DefPoint': float(43.73)}
+        home_team = dict(database_query.get_cfb_sp_plus_by_team(home_team))
+    elif home_team == "FCS":
+        home_team = {'TeamName': 'FCS', 'SPPlus': float(-31.81), 'OffPoint': float(11.92), 'DefPoint': float(43.73)}
+        away_team = dict(database_query.get_cfb_sp_plus_by_team(away_team))
+    else:
+        away_team = dict(database_query.get_cfb_sp_plus_by_team(away_team))
+        home_team = dict(database_query.get_cfb_sp_plus_by_team(home_team))
+
+    #print(away_team)
+    #print(home_team)
+
+    # Grabs Home Field Advantage for the team hosting, as determined in an online analysis.
+    home_hfa = database_query.get_cfb_hfa_by_team(home_team.get("TeamName"))
+    
+    # Estimates how much of the total score each team is responsible for, not used at the score prediction as the margin provided by sp+ accomplishes this.
+    home_factor = ((float(home_team.get("OffPoint"))) + (float(away_team.get("DefPoint"))))/2
+    away_factor = ((float(away_team.get("OffPoint"))) + (float(home_team.get("DefPoint"))))/2
+
+    # Estimates total score.
+    total_score = home_factor + away_factor
+
+    # Estimates margin of victory without accounting for home field advantage, impact of travel, or rest time prior to the game.
+    raw_margin = float(home_team.get("SPPlus")) - float(away_team.get("SPPlus"))
+
+    # Calculates impact of travel and rest time
+    adjustment = (int(game.get("HomeRest"))-int(game.get("AwayRest")))/5.5 + (int(game.get("AwayDist"))-int(game.get("HomeDist")))/1000
+
+    # Estimates the score accounting HFA.
+    away_score = boundary_adjustments(total_score/2 - raw_margin/2 - float(home_hfa.get("HFA"))/2 - adjustment/2)
+    home_score = boundary_adjustments(total_score/2 + raw_margin/2 + float(home_hfa.get("HFA"))/2 + adjustment/2)
+
+    # Accounts for ties at end of regulation (doesn't do OT, determines the non-rounded advantage if any, defaults to hfa if exact tie)
+    home_score, away_score = tie_breaker(home_score,away_score,float(home_team.get("SPPlus")),float(away_team.get("SPPlus")),float(home_hfa.get("HFA")))
+    
+    return away_team.get("TeamName") + ": " + str(round(away_score)) + "; " + home_team.get("TeamName") + ": " + str(round(home_score))
+
+# Returns the score prediction for the next fooball year (as of 6/5/25, this is the 2025 schedule)
+def db_sp_plus_schedule(team):
+    games = database_query.get_team_schedule_info(team)
+    for i in games:
+        print(sp_score(i))
+
+db_sp_plus_schedule("Ohio State")

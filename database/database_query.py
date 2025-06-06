@@ -161,3 +161,24 @@ def insert_game_info(game_info):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+def get_team_schedule_info(team):
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        query = "SELECT * FROM GameInfo WHERE HomeName = %s OR AwayName = %s ORDER BY WeekNumber;"
+        cursor.execute(query, (team, team))
+
+        results = cursor.fetchall()
+
+        return results  # Returns a dict with each field in the fpi table
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
