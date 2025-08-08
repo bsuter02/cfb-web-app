@@ -1,5 +1,7 @@
 import requests
 
+from database.database_query import get_team_name_from_espn_id
+
 rankList = []
 
 # Retrieves and prints the AP top 25 from ESPN
@@ -19,13 +21,19 @@ def get_ap_top_25():
             for rank, team in enumerate(ap_rankings, start=1):
                 #print(f"Team dictionary for rank {rank}: {team}")
                 team_name = team.get("team", {}).get("nickname", "Unknown Team")
-                team_abbr = team.get("team", {}).get("abbreviation", "Unknown Team")
+                team_abbr = team.get("team", {}).get("id", "Unknown Team") # Switch to abbreviation to id
                 record = "(" + team.get("recordSummary", "N/A") + ")"
                 color = "#" + team.get("team", {}).get("color", "cc0000")
-                rankList.append({"abbr": team_abbr + ".png", "name": team_name.upper(), "record": record, "color": color})
+                name = get_team_name_from_espn_id(int(team_abbr))
+                png_name = ''.join(name.split())
+                rankList.append({"abbr": png_name.upper() + ".png", "name": team_name.upper(), "record": record, "color": color})
                 #print(f"{rank}. {team_name} ({record}) {color}")
             return rankList
         else:
             print("AP Top 25 rankings not found.")
     else:
         print(f"Failed to retrieve data. Status code: {response.status_code}")
+
+rankList2 = get_ap_top_25()
+for i in range(len(rankList2)):
+    print(rankList2[i])

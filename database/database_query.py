@@ -182,3 +182,24 @@ def get_team_schedule_info(team):
         if connection.is_connected():
             cursor.close()
             connection.close()
+
+def get_team_name_from_espn_id(espn_id):
+    try:
+        connection = get_connection()
+        cursor = connection.cursor(dictionary=True)
+
+        query = "SELECT TeamName FROM ESPN_ID WHERE ESPN_ID = %s;"
+        cursor.execute(query, (espn_id,))
+
+        result = cursor.fetchone()  # Use fetchone() if expecting only one match
+
+        return result['TeamName'] if result else None
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return None
+
+    finally:
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
