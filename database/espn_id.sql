@@ -1,4 +1,5 @@
 USE cfb_schema;
+DROP TABLE ESPN_ID;
 CREATE TABLE ESPN_ID (
     TeamName VARCHAR(50) PRIMARY KEY,
     ESPN_ID INT,
@@ -27,7 +28,7 @@ INSERT INTO ESPN_ID (TeamName, ESPN_ID, ESPN_Nickname) VALUES
  ('Charlotte', 2429, 'Charlotte'),
  ('Cincinnati', 2132, 'Cincinnati'),
  ('Clemson', 228, 'Clemson'),
- ('Coastal Carolina', 324, 'Coastal Car'),
+ ('Coastal Carolina', 324, 'Coastal'),
  ('Colorado', 38, 'Colorado'),
  ('Colorado State', 36, 'Colorado St'),
  ('Duke', 150, 'Duke'),
