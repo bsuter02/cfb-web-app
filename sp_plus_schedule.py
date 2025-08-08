@@ -134,6 +134,7 @@ def schedule_predictor_sp_plus(team):
             print(predict_schedule_sp_plus(event.get("Away"),event.get("Home"),score_adjustment(distance, opp_stuff[0],get_rest(event, last_game),opp_stuff[1],False)))
             distance += added_dist
         last_game = event.get("Date")
+        distance = distance*0.75
 
 # Calculates the distance an opponent has traveled up to a certain point
 def get_opp_distance_in_schedule(team, stop):
@@ -158,6 +159,7 @@ def get_opp_distance_in_schedule(team, stop):
             event.get("Date")
             return [distance-last_travel,get_rest(event,last_game)]
         last_game = event.get("Date")
+        distance = distance*0.75
 
 # Converts date from the espn event format and calculates rest time
 def get_rest_time(date1, date2):
@@ -230,6 +232,7 @@ def tie_breaker(score1, score2, home_sp, away_sp, hfa):
             score2 = score2 + 1
 
     elif abs(score1-score2) <= 0.5: # Assume margin small enough for overtime. Assume FG to win, may adjust based on offense v defense of winning team if it's a TD or not.
+        print("OT")
         if (away_sp-home_sp)<hfa:
             score1 = score + 3
             score2 = score
@@ -282,10 +285,10 @@ def sp_score(game):
     
     return away_team.get("TeamName") + ": " + str(round(away_score)) + "; " + home_team.get("TeamName") + ": " + str(round(home_score))
 
-# Returns the score prediction for the next fooball year (as of 6/5/25, this is the 2025 schedule)
+# Returns the score prediction for the next fooball year (as of 6/5/25, this is the 2025 schedule) using the local db
 def db_sp_plus_schedule(team):
     games = database_query.get_team_schedule_info(team)
     for i in games:
         print(sp_score(i))
 
-db_sp_plus_schedule("Ohio State")
+#db_sp_plus_schedule("Boise State")

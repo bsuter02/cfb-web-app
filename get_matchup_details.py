@@ -5,6 +5,8 @@ from datetime import datetime
 from database import database_query
 from geopy.geocoders import Nominatim
 
+# This file fills the database with matchup data
+
 # Takes an FBS Team and returns their schedule for the next year with the following information about each game: Home Team, Away Team, Geographic Coordinates, Neutral Site (bool), and Date.
 def get_schedule(team):
     schedule = []
@@ -143,6 +145,7 @@ def get_game_information(team):
             distance += added_dist
         last_game = event.get("Date")
         output.append(event)
+        distance = distance*0.75
     return output
 
 # Calculates the distance an opponent has traveled up to a certain point
@@ -168,6 +171,7 @@ def get_opp_distance_in_schedule(team, stop):
             event.get("Date")
             return [distance-last_travel,get_rest(event,last_game)]
         last_game = event.get("Date")
+        distance = distance*0.75
 
 # Converts date from the espn event format and calculates rest time
 def get_rest_time(date1, date2):
@@ -203,6 +207,8 @@ def add_dist_and_rest_dict(home,event,distance,team_rest,opp_stuff):
         event['away_rest'] = team_rest
     return event
 
+# Populates local db with all FBS games in upcoming season.
+# TODO: Has known issue with openstreetmap timing out mid process
 def add_all_games():
     teams = ["Air Force", "Akron", "Alabama", "App State", "Arizona", "Arizona State", "Arkansas", "Arkansas State", "Army", "Auburn", "Ball State", "Baylor", "Boise State", "Boston College", "Bowling Green", "Buffalo", "BYU", "California", "Central Michigan", "Charlotte", "Cincinnati", "Clemson", "Coastal Carolina", "Colorado", "Colorado State", "Duke", "East Carolina", "Eastern Michigan", "Florida", "Florida Atlantic", "Florida International", "Florida State", "Fresno State", "Georgia", "Georgia Southern", "Georgia State", "Georgia Tech", "Hawaii", "Houston", "Illinois", "Indiana", "Iowa", "Iowa State", "Jacksonville State", "James Madison", "Kansas", "Kansas State", "Kennesaw State", "Kent State", "Kentucky", "Liberty", "Louisiana", "Louisiana Tech", "Louisville", "LSU", "Marshall", "Maryland", "Massachusetts", "Memphis", "Miami", "Miami (OH)", "Michigan", "Michigan State", "Middle Tennessee", "Minnesota", "Mississippi State", "Missouri", "Navy", "NC State", "Nebraska", "Nevada", "New Mexico", "New Mexico State", "North Carolina", "Northern Illinois", "North Texas", "Northwestern", "Notre Dame", "Ohio", "Ohio State", "Oklahoma", "Oklahoma State", "Old Dominion", "Ole Miss", "Oregon", "Oregon State", "Penn State", "Pittsburgh", "Purdue", "Rice", "Rutgers", "Sam Houston", "San Diego State", "San José State", "SMU", "South Alabama", "South Carolina", "Southern Miss", "South Florida", "Stanford", "Syracuse", "TCU", "Temple", "Tennessee", "Texas", "Texas A&M", "Texas State", "Texas Tech", "Toledo", "Troy", "Tulane", "Tulsa", "UAB", "UCF", "UCLA", "UConn", "UL Monroe", "UNLV", "USC", "Utah", "Utah State", "UTEP", "UTSA", "Vanderbilt", "Virginia", "Virginia Tech", "Wake Forest", "Washington", "Washington State", "Western Kentucky", "Western Michigan", "West Virginia", "Wisconsin", "Wyoming", "Delaware", "Missouri State"]
     for i in teams:
@@ -210,6 +216,5 @@ def add_all_games():
             database_query.insert_game_info(j)
         print("Completed: " + i)
 
-for i in database_query.get_team_schedule_info("Alabama"):
-    print(i)
-
+#for i in database_query.get_team_schedule_info("Alabama"):
+#    print(i)
