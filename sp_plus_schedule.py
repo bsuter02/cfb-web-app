@@ -5,6 +5,8 @@ from datetime import datetime
 from database import database_query
 from geopy.geocoders import Nominatim
 
+weekly_travel_impact = 0.0
+
 # Takes an FBS Team and returns their schedule for the next year with the following information about each game: Home Team, Away Team, Geographic Coordinates, Neutral Site (bool), and Date.
 def get_schedule(team):
     schedule = []
@@ -32,6 +34,14 @@ def get_team_in_schedule(event):
     date = event.get("competitions")[0].get("date")
     home_name = database_query.get_teamname_by_nickname(home)
     away_name = database_query.get_teamname_by_nickname(away)
+    is_complete = bool(event.get("competitions")[0].get("boxscoreAvailable"))
+
+    if(is_complete):
+        home_score = event.get("competitions")[0].get("competitors")[0].get("score").get("value")
+        away_score = event.get("competitions")[0].get("competitors")[1].get("score").get("value")
+    else:
+        home_score = -1
+        away_score = -1
 
     is_neutral_site = bool(event.get("competitions")[0].get("neutralSite"))
 
@@ -134,7 +144,7 @@ def schedule_predictor_sp_plus(team):
             print(predict_schedule_sp_plus(event.get("Away"),event.get("Home"),score_adjustment(distance, opp_stuff[0],get_rest(event, last_game),opp_stuff[1],False)))
             distance += added_dist
         last_game = event.get("Date")
-        distance = distance*0.75
+        distance = distance*weekly_travel_impact
 
 # Calculates the distance an opponent has traveled up to a certain point
 def get_opp_distance_in_schedule(team, stop):
@@ -159,7 +169,7 @@ def get_opp_distance_in_schedule(team, stop):
             event.get("Date")
             return [distance-last_travel,get_rest(event,last_game)]
         last_game = event.get("Date")
-        distance = distance*0.75
+        distance = distance*weekly_travel_impact
 
 # Converts date from the espn event format and calculates rest time
 def get_rest_time(date1, date2):
