@@ -1,4 +1,5 @@
 USE cfb_schema;
+DROP TABLE HFA;
 CREATE TABLE HFA (
     TeamName VARCHAR(50) PRIMARY KEY,
     HFA DECIMAL(10,4),
@@ -80,6 +81,7 @@ INSERT INTO HFA (TeamName, HFA, latitude, longitude) VALUES
  ('New Mexico', 2.1700, 35.0669479, -106.6283225),
  ('New Mexico State', 2.2000, 32.2796202, -106.7411148),
  ('North Carolina', 2.2600, 35.9069294, -79.0478889),
+ ('North Dakota State', 2.1200, 46.9029938, -96.8003251),
  ('Northern Illinois', 2.0100, 41.9339586, -88.7778357),
  ('North Texas', 2.1400, 33.203899, -97.159245),
  ('Northwestern', 2.2000, 42.0653994, -87.6924751),
@@ -97,6 +99,7 @@ INSERT INTO HFA (TeamName, HFA, latitude, longitude) VALUES
  ('Purdue', 2.2200, 40.4352253, -86.9186843),
  ('Rice', 2.2300, 29.7163297, -95.4093261),
  ('Rutgers', 2.1200, 40.5462553, -74.4660408),
+ ('Sacramento State', 2.1600, 38.5556718, -121.4229607),
  ('Sam Houston', 2.1700, 30.713926, -95.5419802),
  ('San Diego State', 2.2000, 32.784444, -117.122833),
  ('San José State', 2.1800, 37.3196675, -121.8682962),
