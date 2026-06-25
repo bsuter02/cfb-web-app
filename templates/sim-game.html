@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const flashContainer = document.getElementById('flash-container');
+            const messages = document.getElementsByClassName('flash-message');
+
+            if (messages.length > 0) {
+                flashContainer.style.display = 'block';
+
+                setTimeout(function () {
+                    flashContainer.style.display = 'none';
+                }, 5000);
+            }
+        });
+    </script>
+</head>
+<body>
+<header>
+    <h1><a href="#">Sim Game</a></h1>
+    <nav>
+        <ul>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Rankings</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('ap') }}">AP Top 25</a>
+                    <a href="{{ url_for('home') }}">CFP Top 25</a>
+                    <a href="{{ url_for('home') }}">ESPN FPI Rankings</a>
+                </div>
+            </li>
+            <li><a href="{{ url_for('home') }}">Standings</a></li>
+            <li><a href="#">About</a></li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Teams</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('home') }}">Simulation</a>
+                    <a href="{{ url_for('home') }}">Custom Schedules</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Games</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('home') }}">Search</a>
+                    <a href="{{ url_for('home') }}">Projections</a>
+                </div>
+            </li>
+            <li class="dropdown">
+                <a href="#" class="dropbtn">Custom Conferences</a>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('home') }}">Load Preset</a>
+                    <a href="{{ url_for('home') }}">Create Preset</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+</header>
+<div id="flash-container" class="flash-popup" style="display: none;">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="flash-message">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+
+<main>
+
+    <div class="scoreboard-img">
+        <img class="background-img" src="static/SimScoreboard.png" alt="Scoreboard Background" />
+
+        <img class="overlay-logo-away" src="static/OHIOSTATE.png" alt="Team Logo" />
+        <img class="overlay-logo-home" src="static/MICHIGAN.png" alt="Team Logo" />
+    </div>  
+
+    <div class="team-select">
+        <label for="dynamicDropdownAway">Choose a Team:  </label>
+        <select id="dynamicDropdownAway">
+            <option value="">--Away--</option>
+        </select>
+        <label for="dynamicDropdownHome">     Choose a Team:  </label>
+        <select id="dynamicDropdownHome">
+            <option value="">--Home--</option>
+        </select>
+
+        <script>
+            // List of teams
+            const items = "Air Force, Akron, Alabama, App State, Arizona, Arizona State, Arkansas, Arkansas State, Army, Auburn, Ball State, Baylor, Boise State, Boston College, Bowling Green, Buffalo, BYU, California, Central Michigan, Charlotte, Cincinnati, Clemson, Coastal Carolina, Colorado, Colorado State, Delaware, Duke, East Carolina, Eastern Michigan, Florida, Florida Atlantic, Florida International, Florida State, Fresno State, Georgia, Georgia Southern, Georgia State, Georgia Tech, Hawaii, Houston, Illinois, Indiana, Iowa, Iowa State, Jacksonville State, James Madison, Kansas, Kansas State, Kennesaw State, Kent State, Kentucky, Liberty, Louisiana, Louisiana Tech, Louisville, LSU, Marshall, Maryland, Massachusetts, Memphis, Miami, Miami (OH), Michigan, Michigan State, Middle Tennessee, Minnesota, Mississippi State, Missouri, Missouri State, Navy, NC State, Nebraska, Nevada, New Mexico, New Mexico State, North Carolina, Northern Illinois, North Texas, Northwestern, Notre Dame, Ohio, Ohio State, Oklahoma, Oklahoma State, Old Dominion, Ole Miss, Oregon, Oregon State, Penn State, Pittsburgh, Purdue, Rice, Rutgers, Sam Houston, San Diego State, San José State, SMU, South Alabama, South Carolina, Southern Miss, South Florida, Stanford, Syracuse, TCU, Temple, Tennessee, Texas, Texas A&M, Texas State, Texas Tech, Toledo, Troy, Tulane, Tulsa, UAB, UCF, UCLA, UConn, UL Monroe, UNLV, USC, Utah, Utah State, UTEP, UTSA, Vanderbilt, Virginia, Virginia Tech, Wake Forest, Washington, Washington State, Western Kentucky, Western Michigan, West Virginia, Wisconsin, Wyoming";
+
+            const options = items.split(",").map(item => item.trim());
+            const dropdownAway = document.getElementById("dynamicDropdownAway");
+            const dropdownHome = document.getElementById("dynamicDropdownHome");
+
+            dropdownAway.value = "Ohio State";
+            dropdownHome.value = "Michigan";
+
+            // Add options to dropdowns
+            options.forEach(option => {
+                const opt = document.createElement("option");
+                const opt2 = document.createElement("option");
+                opt.value = option;
+                opt.textContent = option;
+                opt2.value = option;
+                opt2.textContent = option;
+                dropdownAway.appendChild(opt);
+                dropdownHome.appendChild(opt2);
+            });
+
+            // Format selected value to match image filenames
+            function formatFilename(team) {
+                // Remove special characters, spaces, and uppercase
+                return team.replace(/\s+/g, '').replace(/[()]/g, '').toUpperCase();
+            }
+
+            // Event listener for away team
+            dropdownAway.addEventListener('change', function () {
+                const selectedTeam = this.value;
+                const awayImg = document.querySelector('.overlay-logo-away');
+                if (selectedTeam) {
+                    awayImg.src = `static/${formatFilename(selectedTeam)}.png`;
+                } else {
+                    awayImg.src = '';
+                }
+            });
+
+            // Event listener for home team
+            dropdownHome.addEventListener('change', function () {
+                const selectedTeam = this.value;
+                const homeImg = document.querySelector('.overlay-logo-home');
+                if (selectedTeam) {
+                    homeImg.src = `static/${formatFilename(selectedTeam)}.png`;
+                } else {
+                    homeImg.src = '';
+                }
+            });
+        </script>
+    </div>
+</main>
+<footer>
+    <p><a href="#">Insert Footer Text Here</a></p>
+</footer>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const dropdown = document.querySelector('.dropdown');
+
+        dropdown.addEventListener('mouseenter', function () {
+            const dropdownContent = this.querySelector('.dropdown-content');
+            dropdownContent.style.display = 'block';
+        });
+
+        dropdown.addEventListener('mouseleave', function () {
+            const dropdownContent = this.querySelector('.dropdown-content');
+            dropdownContent.style.display = 'none';
+        });
+    });
+</script>
+</body>
+</html>
