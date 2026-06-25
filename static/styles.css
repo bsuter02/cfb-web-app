@@ -197,3 +197,42 @@ a, .dropbtn {
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
     margin-right: 10px;
 }
+
+.team-select {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d8e2e4;
+    padding: 1rem;
+    z-index: 1000;
+}
+
+.scoreboard-img {
+  position: relative;
+  width: fit-content; /* or a fixed width like 600px */
+}
+
+.background-img {
+  display: block;
+  width: 100%;
+}
+
+
+.overlay-logo-away {
+  position: absolute;
+  top: 42%;
+  left: 14%;
+  transform: translate(-50%, -50%);
+  width: 23vw;
+  height: auto;
+}
+
+.overlay-logo-home {
+  position: absolute;
+  top: 42%;
+  left: 86%;
+  transform: translate(-50%, -50%);
+  width: 23vw;
+  height: auto;
+}

@@ -12,6 +12,10 @@ def ap():
     pic_links = get_rankings.get_ap_top_25()
     return render_template('AP.html', pic_links=pic_links)
 
+@app.route('/sim_game', methods=['GET', 'POST'])
+def sim_game():
+    return render_template('sim-game.html')
+
 
 #cfdb api: https://github.com/CFBD/cfbd-python?tab=readme-ov-file
 if __name__ == '__main__':
